@@ -1,4 +1,4 @@
-use std::io::{BufRead, BufReader, Read, Write};
+use std::io::{BufRead, BufReader, BufWriter, Read, Write};
 
 use crate::error::LibError;
 use crate::model::{Operation, OperationType};
@@ -53,9 +53,22 @@ pub fn read(source: impl Read) -> Result<Vec<Operation>, LibError> {
     Ok(result)
 }
 
-pub fn write(
-    _operations: &impl IntoIterator<Item = Operation>,
-    _dst: impl Write,
+pub fn write<'a>(
+    operations: impl IntoIterator<Item = &'a Operation>,
+    dst: &mut impl Write,
 ) -> Result<(), LibError> {
-    todo!()
+    let mut writer = BufWriter::new(dst);
+    writeln!(writer, "date,category,kind,amount")?;
+    for operation in operations.into_iter() {
+        writeln!(
+            writer,
+            "{},{},{},{}",
+            operation.get_date(),
+            operation.get_category(),
+            operation.get_operation_type().to_string(),
+            operation.get_amount()
+        )?;
+    }
+    writer.flush().unwrap();
+    Ok(())
 }
