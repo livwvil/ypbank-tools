@@ -118,7 +118,7 @@ macro_rules! nameof {
 impl OperationStorage for InMemoryOperationStorage {
     fn load(&mut self, format: Format, source: impl Read) -> Result<(), LibError> {
         let operations = match format {
-            Format::Text => todo!(),
+            Format::Text => crate::text_format::read(source),
             Format::Csv => crate::csv_format::read(source),
             Format::Bin => todo!(),
         }?;
@@ -128,7 +128,7 @@ impl OperationStorage for InMemoryOperationStorage {
 
     fn save<'a>(&self, format: Format, dst: &'a mut impl Write) -> Result<(), LibError> {
         match format {
-            Format::Text => todo!(),
+            Format::Text => crate::text_format::write(&self.operations, dst),
             Format::Csv => crate::csv_format::write(&self.operations, dst),
             Format::Bin => todo!(),
         }?;
