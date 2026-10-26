@@ -39,7 +39,8 @@ pub enum CompareError {
 #[derive(Debug)]
 pub enum LibError {
     EmptyInput,
-    Format,
+    BadContent,
+    BadFormat(ParseFormatTypeError),
     Io(std::io::Error),
     ParseAmount(std::num::ParseIntError),
     ParseOperationType(ParseOperationTypeError),
@@ -63,17 +64,32 @@ impl From<ParseOperationTypeError> for LibError {
     }
 }
 
+impl From<ParseFormatTypeError> for LibError {
+    fn from(err: ParseFormatTypeError) -> Self {
+        Self::BadFormat(err)
+    }
+}
+
 impl std::fmt::Display for LibError {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        std::fmt::Debug::fmt(self, f)
+        match self {
+            LibError::EmptyInput => write!(f, "Не удалось прочитать файл - пустой"),
+            LibError::BadContent => write!(f, "Содержимое файла не соответствует формату"),
+            LibError::BadFormat(e) => write!(f, "{e}"),
+            LibError::Io(e) => write!(f, "Ошибка ввода-вывода: {e}"),
+            LibError::ParseAmount(e) => write!(f, "Ошибка парсинга суммы: {e}"),
+            LibError::ParseOperationType(e) => write!(f, "Ошибка парсинга типа операции: {e}"),
+        }
     }
 }
 
 impl std::error::Error for LibError {
     fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
         match self {
+            LibError::BadFormat(error) => Some(error),
             LibError::Io(error) => Some(error),
             LibError::ParseAmount(error) => Some(error),
+            LibError::ParseOperationType(error) => Some(error),
             _ => None,
         }
     }

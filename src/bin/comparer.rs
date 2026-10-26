@@ -24,45 +24,27 @@ fn open_with_format(path: &str) -> (fs::File, Format) {
     (file, format)
 }
 
-fn display_error(err: LibError) {
-    match err {
-        LibError::EmptyInput => {
-            eprintln!("Не удалось прочитать файл - пустой");
-        }
-        LibError::Format => {
-            eprintln!("Содержимое файла не соответствует формату");
-        }
-        LibError::Io(e) => {
-            eprintln!("Ошибка ввода-вывода: {}", e);
-        }
-        LibError::ParseAmount(e) => {
-            eprintln!("Ошибка парсинга суммы: {}", e);
-        }
-        LibError::ParseOperationType(e) => {
-            eprintln!("Ошибка парсинга типа операции: {}", e);
-        }
-    }
-    std::process::exit(1);
-}
-
-fn main() {
+fn run() -> Result<(), LibError> {
     let args: Vec<String> = env::args().collect();
 
     if args.len() != 3 {
         eprintln!("Использование:");
-        eprintln!("  cargo run --bin comparer -- path/to/file1 path/to/file2");
+        eprintln!("  cargo run --bin comparer -- <path/to/file1> <path/to/file2>");
         eprintln!("Поддерживаемые форматы:");
-        return;
+        eprintln!("  - txt");
+        eprintln!("  - csv");
+        eprintln!("  - bin");
+        std::process::exit(1);
     }
 
     let (file1, format1) = open_with_format(&args[1]);
     let (file2, format2) = open_with_format(&args[2]);
 
     let mut storage1 = InMemoryOperationStorage::new();
-    storage1.load(format1, file1).unwrap_or_else(display_error);
+    storage1.load(format1, file1)?;
 
     let mut storage2 = InMemoryOperationStorage::new();
-    storage2.load(format2, file2).unwrap_or_else(display_error);
+    storage2.load(format2, file2)?;
 
     if let Err(e) = storage1.compare(&storage2) {
         match e {
@@ -84,5 +66,14 @@ fn main() {
                 );
             }
         }
+    }
+
+    Ok(())
+}
+
+fn main() {
+    if let Err(err) = run() {
+        eprintln!("{}", err);
+        std::process::exit(1);
     }
 }

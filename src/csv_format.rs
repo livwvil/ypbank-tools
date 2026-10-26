@@ -12,19 +12,19 @@ pub fn read(source: impl Read) -> Result<Vec<Operation>, LibError> {
             let first_line = res?;
             let mut parts = first_line.trim().split(',');
             let Some("date") = parts.next() else {
-                return Err(LibError::Format);
+                return Err(LibError::BadContent);
             };
             let Some("category") = parts.next() else {
-                return Err(LibError::Format);
+                return Err(LibError::BadContent);
             };
             let Some("kind") = parts.next() else {
-                return Err(LibError::Format);
+                return Err(LibError::BadContent);
             };
             let Some("amount") = parts.next() else {
-                return Err(LibError::Format);
+                return Err(LibError::BadContent);
             };
             let None = parts.next() else {
-                return Err(LibError::Format);
+                return Err(LibError::BadContent);
             };
         }
         None => {
@@ -46,7 +46,7 @@ pub fn read(source: impl Read) -> Result<Vec<Operation>, LibError> {
 
             result.push(Operation::new(date, category, operation_type, amount));
         } else {
-            return Err(LibError::Format);
+            return Err(LibError::BadContent);
         }
     }
 
