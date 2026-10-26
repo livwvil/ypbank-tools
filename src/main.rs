@@ -1,4 +1,7 @@
-use std::{env, fs, io};
+use std::{
+    env, fs,
+    io::{self, Read},
+};
 
 use ypbank::{
     InMemoryOperationStorage,
@@ -7,43 +10,36 @@ use ypbank::{
 };
 
 fn run() -> Result<(), LibError> {
-    let args: Vec<String> = env::args().collect();
+    let mut args: Vec<String> = env::args().collect();
+
+    if args.len() != 4 && args.len() != 5 {
+        eprintln!("Использование:");
+        eprintln!(
+            "  cargo run --bin converter -- <path/to/file_in> <format_in> <path/to/file_out> <format_out>"
+        );
+        eprintln!(
+            "  cargo run --bin converter -- <format_in> <path/to/file_out> <format_out> < path/to/file_in"
+        );
+        eprintln!("Поддерживаемые форматы:");
+        eprintln!("  - txt");
+        eprintln!("  - csv");
+        eprintln!("  - bin");
+        std::process::exit(1);
+    }
+
+    let format_out: Format = args.pop().unwrap().parse()?;
+    let mut file_out = fs::File::create(&args.pop().unwrap()).unwrap();
+    let format_in: Format = args.pop().unwrap().parse()?;
+
+    let file_in: Box<dyn Read> = if args.len() == 4 {
+        Box::new(io::stdin().lock())
+    } else {
+        Box::new(fs::File::open(&args.pop().unwrap()).unwrap())
+    };
 
     let mut storage = InMemoryOperationStorage::new();
-    match args.len() {
-        4 => {
-            let stdin = io::stdin().lock();
-            let format_in: Format = args[1].parse()?;
-            let mut file_out = fs::File::create(&args[2]).unwrap();
-            let format_out: Format = args[3].parse()?;
-
-            storage.load(format_in, stdin)?;
-            storage.save(format_out, &mut file_out)?;
-        }
-        5 => {
-            let file_in = fs::File::open(&args[1]).unwrap();
-            let format_in: Format = args[2].parse()?;
-            let mut file_out = fs::File::create(&args[3]).unwrap();
-            let format_out: Format = args[4].parse()?;
-
-            storage.load(format_in, file_in)?;
-            storage.save(format_out, &mut file_out)?;
-        }
-        _ => {
-            eprintln!("Использование:");
-            eprintln!(
-                "  cargo run --bin converter -- <path/to/file_in> <format_in> <path/to/file_out> <format_out>"
-            );
-            eprintln!(
-                "  cargo run --bin converter -- <format_in> <path/to/file_out> <format_out> < path/to/file_in"
-            );
-            eprintln!("Поддерживаемые форматы:");
-            eprintln!("  - txt");
-            eprintln!("  - csv");
-            eprintln!("  - bin");
-            std::process::exit(1);
-        }
-    }
+    storage.load(format_in, file_in)?;
+    storage.save(format_out, &mut file_out)?;
 
     Ok(())
 }
