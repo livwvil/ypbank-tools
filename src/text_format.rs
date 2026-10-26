@@ -50,6 +50,6 @@ pub fn write<'a>(
         writeln!(writer, "{}", operation.get_operation_type().to_string())?;
         writeln!(writer, "{}", operation.get_amount())?;
     }
-    writer.flush().unwrap();
+    writer.flush()?;
     Ok(())
 }

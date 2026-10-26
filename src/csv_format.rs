@@ -69,6 +69,6 @@ pub fn write<'a>(
             operation.get_amount()
         )?;
     }
-    writer.flush().unwrap();
+    writer.flush()?;
     Ok(())
 }

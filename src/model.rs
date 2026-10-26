@@ -120,7 +120,7 @@ impl OperationStorage for InMemoryOperationStorage {
         let operations = match format {
             Format::Text => crate::text_format::read(source),
             Format::Csv => crate::csv_format::read(source),
-            Format::Bin => todo!(),
+            Format::Bin => crate::bin_format::read(source),
         }?;
         self.operations.extend(operations);
         Ok(())
@@ -130,7 +130,7 @@ impl OperationStorage for InMemoryOperationStorage {
         match format {
             Format::Text => crate::text_format::write(&self.operations, dst),
             Format::Csv => crate::csv_format::write(&self.operations, dst),
-            Format::Bin => todo!(),
+            Format::Bin => crate::bin_format::write(&self.operations, dst),
         }?;
         Ok(())
     }
