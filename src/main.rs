@@ -12,7 +12,10 @@ use ypbank::{
 fn run() -> Result<(), LibError> {
     let mut args: Vec<String> = env::args().collect();
 
-    if args.len() != 4 && args.len() != 5 {
+    let use_stdin = args.len() == 4;
+    let use_file = args.len() == 5;
+
+    if !use_stdin && !use_file {
         eprintln!("Использование:");
         eprintln!(
             "  cargo run --bin converter -- <path/to/file_in> <format_in> <path/to/file_out> <format_out>"
@@ -31,7 +34,7 @@ fn run() -> Result<(), LibError> {
     let mut file_out = fs::File::create(&args.pop().unwrap()).unwrap();
     let format_in: Format = args.pop().unwrap().parse()?;
 
-    let file_in: Box<dyn Read> = if args.len() == 4 {
+    let file_in: Box<dyn Read> = if use_stdin {
         Box::new(io::stdin().lock())
     } else {
         Box::new(fs::File::open(&args.pop().unwrap()).unwrap())
