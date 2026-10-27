@@ -38,6 +38,32 @@ pub enum CompareError {
     },
 }
 
+impl std::fmt::Display for CompareError {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        match self {
+            CompareError::DifferentFieldValues {
+                pos,
+                field,
+                this,
+                other,
+            } => {
+                write!(
+                    f,
+                    "Транзакции отличаются на позиции {pos}: {field}: {this} != {other}"
+                )
+            }
+            CompareError::DifferentLength { this, other } => {
+                write!(
+                    f,
+                    "Списки транзакций не совпадают по длинне: {this} != {other}",
+                )
+            }
+        }
+    }
+}
+
+impl std::error::Error for CompareError {}
+
 /// Ошибка чтения\записи транзакций из\в файл
 #[derive(Debug)]
 pub enum LibError {

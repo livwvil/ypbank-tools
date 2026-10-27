@@ -1,7 +1,7 @@
 use std::{env, fs, path::Path};
 
 use ypbank::{
-    error::{CompareError, LibError},
+    error::LibError,
     model::{Format, InMemoryOperationStorage, OperationStorage},
 };
 
@@ -51,25 +51,9 @@ fn run() -> Result<(), LibError> {
     storage2.load(format2, file2)?;
 
     if let Err(e) = storage1.compare(&storage2) {
-        match e {
-            CompareError::DifferentFieldValues {
-                pos,
-                field,
-                this,
-                other,
-            } => {
-                println!(
-                    "Транзакции отличаются на позиции {}: {}: {} != {}",
-                    pos, field, this, other
-                );
-            }
-            CompareError::DifferentLength { this, other } => {
-                println!(
-                    "Списки транзакций не совпадают по длинне: {} != {}",
-                    this, other
-                );
-            }
-        }
+        println!("{}", e);
+    } else {
+        println!("Транзакции совпадают");
     }
 
     Ok(())
