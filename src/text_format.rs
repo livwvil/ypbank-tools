@@ -41,7 +41,7 @@ pub fn read(source: impl Read) -> Result<Vec<Operation>, LibError> {
 
 pub fn write<'a>(
     operations: impl IntoIterator<Item = &'a Operation>,
-    dst: &mut impl Write,
+    dst: impl Write,
 ) -> Result<(), LibError> {
     let mut writer = BufWriter::new(dst);
     for operation in operations.into_iter() {

@@ -1,5 +1,4 @@
 use std::io::{self, Read, Write};
-use std::mem::size_of_val;
 
 use crate::error::LibError;
 use crate::model::Operation;
@@ -81,7 +80,7 @@ pub fn read(mut source: impl Read) -> Result<Vec<Operation>, LibError> {
 
 pub fn write<'a>(
     operations: impl IntoIterator<Item = &'a Operation>,
-    dst: &mut impl Write,
+    mut dst: impl Write,
 ) -> Result<(), LibError> {
     for operation in operations.into_iter() {
         dst.write_all(&operation.get_date().as_bytes().len().to_le_bytes())?;

@@ -91,7 +91,7 @@ impl Operation {
 
 pub trait OperationStorage {
     fn load(&mut self, format: Format, source: impl Read) -> Result<(), LibError>;
-    fn save<'a>(&self, format: Format, dst: &'a mut impl Write) -> Result<(), LibError>;
+    fn save(&self, format: Format, dst: impl Write) -> Result<(), LibError>;
     fn get_all(&self) -> Vec<&Operation>;
     fn compare(&self, other: &impl OperationStorage) -> Result<(), CompareError>;
 }
@@ -126,7 +126,7 @@ impl OperationStorage for InMemoryOperationStorage {
         Ok(())
     }
 
-    fn save<'a>(&self, format: Format, dst: &'a mut impl Write) -> Result<(), LibError> {
+    fn save(&self, format: Format, dst: impl Write) -> Result<(), LibError> {
         match format {
             Format::Text => crate::text_format::write(&self.operations, dst),
             Format::Csv => crate::csv_format::write(&self.operations, dst),

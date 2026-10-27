@@ -55,7 +55,7 @@ pub fn read(source: impl Read) -> Result<Vec<Operation>, LibError> {
 
 pub fn write<'a>(
     operations: impl IntoIterator<Item = &'a Operation>,
-    dst: &mut impl Write,
+    dst: impl Write,
 ) -> Result<(), LibError> {
     let mut writer = BufWriter::new(dst);
     writeln!(writer, "date,category,kind,amount")?;
