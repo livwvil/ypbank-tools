@@ -47,3 +47,36 @@ pub fn write<'a>(
     writer.flush()?;
     Ok(())
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::model::OperationType;
+
+    use super::*;
+    use std::io::Cursor;
+
+    #[test]
+    fn test_txt_round_trip_success() {
+        let op = Operation::new(
+            "2026-04-01".into(),
+            "salary".into(),
+            OperationType::Income,
+            120000,
+        );
+
+        let mut cursor = Cursor::new(Vec::new());
+        write(&vec![op.clone()], &mut cursor).unwrap();
+        cursor.set_position(0);
+        let res = read(cursor).unwrap();
+
+        assert_eq!(vec![op], res);
+    }
+
+    #[test]
+    fn test_txt_parse_error() {
+        let data = b"2026-04-01,salary,income,120000\n";
+        let cursor = Cursor::new(&data[..]);
+
+        assert!(read(cursor).is_err());
+    }
+}

@@ -28,7 +28,7 @@ impl FromStr for Format {
 }
 
 /// Тип транзакции
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum OperationType {
     Income,
     Expense,
@@ -57,7 +57,7 @@ impl FromStr for OperationType {
 }
 
 /// Представление транзакции
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Operation {
     date: String,
     category: String,
@@ -201,5 +201,56 @@ impl OperationStorage for InMemoryOperationStorage {
         }
 
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::io::Cursor;
+
+    #[test]
+    fn test_convert_csv_to_txt_success() {
+        let data = b"date,category,kind,amount\n2026-04-01,salary,income,120000\n";
+
+        let mut storage = InMemoryOperationStorage::new();
+        storage.load(Format::Csv, Cursor::new(&data[..])).unwrap();
+
+        let mut cursor = Cursor::new(Vec::new());
+        storage.save(Format::Text, &mut cursor).unwrap();
+        let text = String::from_utf8(cursor.into_inner()).unwrap();
+
+        assert_eq!(text, "2026-04-01;salary;income;120000\n".to_string());
+    }
+
+    #[test]
+    fn test_comparer_same_data() {
+        let data = b"date,category,kind,amount\n2026-04-01,salary,income,120000\n";
+
+        let mut storage1 = InMemoryOperationStorage::new();
+        storage1.load(Format::Csv, Cursor::new(&data[..])).unwrap();
+
+        let mut storage2 = InMemoryOperationStorage::new();
+        storage2.load(Format::Csv, Cursor::new(&data[..])).unwrap();
+
+        assert!(storage1.compare(&storage2).is_ok());
+    }
+
+    #[test]
+    fn test_comparer_different_data() {
+        let data = b"date,category,kind,amount\n2026-04-01,salary,income,120000\n";
+        let mut storage1 = InMemoryOperationStorage::new();
+        storage1.load(Format::Csv, Cursor::new(&data[..])).unwrap();
+
+        let data = b"date,category,kind,amount\n2026-04-01,salary,income,120000\n2026-04-02,rent,expense,40000\n";
+        let mut storage2 = InMemoryOperationStorage::new();
+        storage2.load(Format::Csv, Cursor::new(&data[..])).unwrap();
+
+        let res = storage1.compare(&storage2);
+        assert!(res.is_err());
+        assert_eq!(
+            res.err(),
+            Some(CompareError::DifferentLength { this: 1, other: 2 })
+        );
     }
 }

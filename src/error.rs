@@ -25,7 +25,7 @@ impl fmt::Display for ParseOperationTypeError {
 impl std::error::Error for ParseOperationTypeError {}
 
 /// Ошибка сравнения списков транзакций
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum CompareError {
     /// Списки не совпадают по количеству транзакций
     DifferentLength { this: usize, other: usize },
