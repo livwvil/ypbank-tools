@@ -5,6 +5,15 @@ use ypbank::{
     model::{Format, InMemoryOperationStorage, OperationStorage},
 };
 
+fn show_usage() {
+    eprintln!("Использование:");
+    eprintln!("  cargo run --bin comparer -- <path/to/file1> <path/to/file2>");
+    eprintln!("Поддерживаемые форматы:");
+    eprintln!("  - txt");
+    eprintln!("  - csv");
+    eprintln!("  - bin");
+}
+
 fn open_with_format(path: &str) -> (fs::File, Format) {
     let format = Path::new(path)
         .extension()
@@ -16,8 +25,8 @@ fn open_with_format(path: &str) -> (fs::File, Format) {
             std::process::exit(1);
         });
 
-    let file = fs::File::open(path).unwrap_or_else(|_| {
-        eprintln!("Файл не найден: {}", path);
+    let file = fs::File::open(path).unwrap_or_else(|e| {
+        eprintln!("Ошибка открытия файла '{path}': {}", e);
         std::process::exit(1);
     });
 
@@ -28,12 +37,7 @@ fn run() -> Result<(), LibError> {
     let args: Vec<String> = env::args().collect();
 
     if args.len() != 3 {
-        eprintln!("Использование:");
-        eprintln!("  cargo run --bin comparer -- <path/to/file1> <path/to/file2>");
-        eprintln!("Поддерживаемые форматы:");
-        eprintln!("  - txt");
-        eprintln!("  - csv");
-        eprintln!("  - bin");
+        show_usage();
         std::process::exit(1);
     }
 

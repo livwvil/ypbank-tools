@@ -9,6 +9,20 @@ use ypbank::{
     model::{Format, OperationStorage},
 };
 
+fn show_usage() {
+    eprintln!("Использование:");
+    eprintln!(
+        "  cargo run --bin converter -- <path/to/file_in> <format_in> <path/to/file_out> <format_out>"
+    );
+    eprintln!(
+        "  cargo run --bin converter -- <format_in> <path/to/file_out> <format_out> < path/to/file_in"
+    );
+    eprintln!("Поддерживаемые форматы:");
+    eprintln!("  - txt");
+    eprintln!("  - csv");
+    eprintln!("  - bin");
+}
+
 fn run() -> Result<(), LibError> {
     let mut args: Vec<String> = env::args().collect();
 
@@ -16,28 +30,27 @@ fn run() -> Result<(), LibError> {
     let use_file = args.len() == 5;
 
     if !use_stdin && !use_file {
-        eprintln!("Использование:");
-        eprintln!(
-            "  cargo run --bin converter -- <path/to/file_in> <format_in> <path/to/file_out> <format_out>"
-        );
-        eprintln!(
-            "  cargo run --bin converter -- <format_in> <path/to/file_out> <format_out> < path/to/file_in"
-        );
-        eprintln!("Поддерживаемые форматы:");
-        eprintln!("  - txt");
-        eprintln!("  - csv");
-        eprintln!("  - bin");
+        show_usage();
         std::process::exit(1);
     }
 
     let format_out: Format = args.pop().unwrap().parse()?;
-    let mut file_out = fs::File::create(&args.pop().unwrap()).unwrap();
+    let file_out_path = args.pop().unwrap();
     let format_in: Format = args.pop().unwrap().parse()?;
+
+    let mut file_out = fs::File::create(&file_out_path).unwrap_or_else(|e| {
+        eprintln!("Ошибка создания выходного файла '{file_out_path}': {}", e);
+        std::process::exit(1);
+    });
 
     let file_in: Box<dyn Read> = if use_stdin {
         Box::new(io::stdin().lock())
     } else {
-        Box::new(fs::File::open(&args.pop().unwrap()).unwrap())
+        let file_in_path = args.pop().unwrap();
+        Box::new(fs::File::open(&file_in_path).unwrap_or_else(|e| {
+            eprintln!("Ошибка открытия входного файла '{file_in_path}': {}", e);
+            std::process::exit(1);
+        }))
     };
 
     let mut storage = InMemoryOperationStorage::new();
