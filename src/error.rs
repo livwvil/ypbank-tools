@@ -71,6 +71,8 @@ pub enum LibError {
     EmptyInput,
     /// Контент файла не соответствует формату
     BadContent,
+    /// Длина значения оказалась непредвиденной
+    UnexpectedValueLength(String, usize),
     /// Ошибка парсинга формата файла
     BadFormat(ParseFormatTypeError),
     /// Ошибка ввода вывода при чтении\записи файла
@@ -110,6 +112,12 @@ impl std::fmt::Display for LibError {
         match self {
             LibError::EmptyInput => write!(f, "Не удалось прочитать файл - пустой"),
             LibError::BadContent => write!(f, "Содержимое файла не соответствует формату"),
+            LibError::UnexpectedValueLength(val, limit) => {
+                write!(
+                    f,
+                    "Непредвиденная длина значения '{val}' при установленном лимите {limit}"
+                )
+            }
             LibError::BadFormat(e) => write!(f, "Ошибка парсинга формата файла: {e}"),
             LibError::Io(e) => write!(f, "Ошибка ввода-вывода: {e}"),
             LibError::ParseAmount(e) => write!(f, "Ошибка парсинга суммы: {e}"),

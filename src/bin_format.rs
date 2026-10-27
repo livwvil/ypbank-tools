@@ -84,16 +84,36 @@ pub fn write<'a>(
     operations: impl IntoIterator<Item = &'a Operation>,
     mut dst: impl Write,
 ) -> Result<(), LibError> {
+    let lim = 255usize;
     for operation in operations.into_iter() {
-        dst.write_all(&(operation.get_date().as_bytes().len() as u8).to_le_bytes())?;
+        let len: usize = operation.get_date().as_bytes().len();
+        if len > lim {
+            return Err(LibError::UnexpectedValueLength(
+                operation.get_date().into(),
+                lim,
+            ));
+        }
+        dst.write_all(&(len as u8).to_le_bytes())?;
         dst.write_all(operation.get_date().as_bytes())?;
 
-        dst.write_all(&(operation.get_category().as_bytes().len() as u8).to_le_bytes())?;
+        let len = operation.get_category().as_bytes().len();
+        if len > lim {
+            return Err(LibError::UnexpectedValueLength(
+                operation.get_category().into(),
+                lim,
+            ));
+        }
+        dst.write_all(&(len as u8).to_le_bytes())?;
         dst.write_all(operation.get_category().as_bytes())?;
 
-        dst.write_all(
-            &(operation.get_operation_type().to_string().as_bytes().len() as u8).to_le_bytes(),
-        )?;
+        let len = operation.get_operation_type().to_string().as_bytes().len();
+        if len > lim {
+            return Err(LibError::UnexpectedValueLength(
+                operation.get_operation_type().to_string(),
+                lim,
+            ));
+        }
+        dst.write_all(&(len as u8).to_le_bytes())?;
         dst.write_all(operation.get_operation_type().to_string().as_bytes())?;
 
         dst.write_all(&operation.get_amount().to_le_bytes())?;
