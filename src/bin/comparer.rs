@@ -9,7 +9,7 @@ fn show_usage() {
     eprintln!("Использование:");
     eprintln!("  cargo run --bin comparer -- <path/to/file1> <path/to/file2>");
     eprintln!("Поддерживаемые форматы:");
-    eprintln!("  - txt");
+    eprintln!("  - text");
     eprintln!("  - csv");
     eprintln!("  - bin");
 }

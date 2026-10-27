@@ -23,8 +23,8 @@ cargo run --bin converter -- path/to/file_in format_in format_out
 cargo run --bin converter -- format_in format_out < path/to/file_in
 
 # Пример
-cargo run --bin converter -- ./test_files/transactions.csv csv txt
-cargo run --bin converter -- txt csv < ./test_files/transactions_another.txt
+cargo run --bin converter -- ./test_files/transactions.csv csv text
+cargo run --bin converter -- text csv < ./test_files/transactions_another.txt
 
 ```
 

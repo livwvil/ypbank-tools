@@ -14,7 +14,7 @@ fn show_usage() {
     eprintln!("  cargo run --bin converter -- <path/to/file_in> <format_in> <format_out>");
     eprintln!("  cargo run --bin converter -- <format_in> <format_out> < path/to/file_in");
     eprintln!("Поддерживаемые форматы:");
-    eprintln!("  - txt");
+    eprintln!("  - text");
     eprintln!("  - csv");
     eprintln!("  - bin");
 }

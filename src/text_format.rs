@@ -3,7 +3,7 @@ use std::io::{BufRead, BufReader, BufWriter, Read, Write};
 use crate::error::LibError;
 use crate::model::{Operation, OperationType};
 
-/// Читает транзакции `Operation` из `impl Read` в формате `txt`
+/// Читает транзакции `Operation` из `impl Read` в формате `text`
 pub fn read(source: impl Read) -> Result<Vec<Operation>, LibError> {
     let reader = BufReader::new(source);
 
@@ -28,7 +28,7 @@ pub fn read(source: impl Read) -> Result<Vec<Operation>, LibError> {
     Ok(result)
 }
 
-/// Записывает транзакции `Operation` в `impl Write` в формате `txt`
+/// Записывает транзакции `Operation` в `impl Write` в формате `text`
 pub fn write<'a>(
     operations: impl IntoIterator<Item = &'a Operation>,
     dst: impl Write,
@@ -56,7 +56,7 @@ mod tests {
     use std::io::Cursor;
 
     #[test]
-    fn test_txt_round_trip_success() {
+    fn test_text_round_trip_success() {
         let op = Operation::new(
             "2026-04-01".into(),
             "salary".into(),
@@ -73,7 +73,7 @@ mod tests {
     }
 
     #[test]
-    fn test_txt_parse_error() {
+    fn test_text_parse_error() {
         let data = b"2026-04-01,salary,income,120000\n";
         let cursor = Cursor::new(&data[..]);
 

@@ -19,7 +19,7 @@ impl FromStr for Format {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s.to_lowercase().as_str() {
-            "txt" => Ok(Format::Text),
+            "text" | "txt" => Ok(Format::Text),
             "csv" => Ok(Format::Csv),
             "bin" => Ok(Format::Bin),
             s => Err(ParseFormatTypeError(s.into())),
@@ -210,7 +210,7 @@ mod tests {
     use std::io::Cursor;
 
     #[test]
-    fn test_convert_csv_to_txt_success() {
+    fn test_convert_csv_to_text_success() {
         let data = b"date,category,kind,amount\n2026-04-01,salary,income,120000\n";
 
         let mut storage = InMemoryOperationStorage::new();
