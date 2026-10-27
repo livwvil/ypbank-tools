@@ -3,6 +3,7 @@ use std::io::{self, Read, Write};
 use crate::error::LibError;
 use crate::model::Operation;
 
+/// Читает транзакции `Operation` из `impl Read` в формате `bin`
 pub fn read(mut source: impl Read) -> Result<Vec<Operation>, LibError> {
     let mut result: Vec<Operation> = vec![];
 
@@ -78,6 +79,7 @@ pub fn read(mut source: impl Read) -> Result<Vec<Operation>, LibError> {
     Ok(result)
 }
 
+/// Записывает транзакции `Operation` в `impl Write` в формате `bin`
 pub fn write<'a>(
     operations: impl IntoIterator<Item = &'a Operation>,
     mut dst: impl Write,

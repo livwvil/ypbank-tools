@@ -6,6 +6,7 @@ use std::{
 
 use crate::error::{CompareError, LibError, ParseFormatTypeError, ParseOperationTypeError};
 
+/// Формат файла с транзакциями
 #[derive(Debug)]
 pub enum Format {
     Text,
@@ -26,6 +27,7 @@ impl FromStr for Format {
     }
 }
 
+/// Тип транзакции
 #[derive(Debug, PartialEq)]
 pub enum OperationType {
     Income,
@@ -54,6 +56,7 @@ impl FromStr for OperationType {
     }
 }
 
+/// Представление транзакции
 #[derive(Debug, PartialEq)]
 pub struct Operation {
     date: String,
@@ -63,6 +66,7 @@ pub struct Operation {
 }
 
 impl Operation {
+    /// Создаёт транзакцию
     pub fn new(date: String, category: String, operation_type: OperationType, amount: u64) -> Self {
         Operation {
             date,
@@ -72,35 +76,46 @@ impl Operation {
         }
     }
 
+    /// Возвращает значение поля `date`
     pub fn get_date(&self) -> &String {
         &self.date
     }
 
+    /// Возвращает значение поля `category`
     pub fn get_category(&self) -> &String {
         &self.category
     }
 
+    /// Возвращает значение поля `operation_type`
     pub fn get_operation_type(&self) -> &OperationType {
         &self.operation_type
     }
 
+    /// Возвращает значение поля `amount`
     pub fn get_amount(&self) -> u64 {
         self.amount
     }
 }
 
+/// Хранилище транзакций
 pub trait OperationStorage {
+    /// Загружает транзакции из источника
     fn load(&mut self, format: Format, source: impl Read) -> Result<(), LibError>;
+    /// Сохраняет транзакции в приёмник
     fn save(&self, format: Format, dst: impl Write) -> Result<(), LibError>;
+    /// Возвращает все транзакции хранилища
     fn get_all(&self) -> Vec<&Operation>;
+    /// Сравнивает два хранилища транзакций
     fn compare(&self, other: &impl OperationStorage) -> Result<(), CompareError>;
 }
 
+/// Реализация хранилища транзакций в памяти
 pub struct InMemoryOperationStorage {
     operations: Vec<Operation>,
 }
 
 impl InMemoryOperationStorage {
+    /// Создаёт пустое хранилище транзакций
     pub fn new() -> Self {
         Self { operations: vec![] }
     }

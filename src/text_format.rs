@@ -3,6 +3,7 @@ use std::io::{BufRead, BufReader, BufWriter, Read, Write};
 use crate::error::LibError;
 use crate::model::{Operation, OperationType};
 
+/// Читает транзакции `Operation` из `impl Read` в формате `txt`
 pub fn read(source: impl Read) -> Result<Vec<Operation>, LibError> {
     let reader = BufReader::new(source);
 
@@ -27,6 +28,7 @@ pub fn read(source: impl Read) -> Result<Vec<Operation>, LibError> {
     Ok(result)
 }
 
+/// Записывает транзакции `Operation` в `impl Write` в формате `txt`
 pub fn write<'a>(
     operations: impl IntoIterator<Item = &'a Operation>,
     dst: impl Write,

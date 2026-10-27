@@ -1,5 +1,6 @@
 use std::fmt;
 
+/// Ошибка парсинга типа формата
 #[derive(Debug)]
 pub struct ParseFormatTypeError(pub String);
 
@@ -11,6 +12,7 @@ impl fmt::Display for ParseFormatTypeError {
 
 impl std::error::Error for ParseFormatTypeError {}
 
+/// Ошибка парсинга типа операции
 #[derive(Debug)]
 pub struct ParseOperationTypeError(pub String);
 
@@ -22,12 +24,12 @@ impl fmt::Display for ParseOperationTypeError {
 
 impl std::error::Error for ParseOperationTypeError {}
 
+/// Ошибка сравнения списков транзакций
 #[derive(Debug)]
 pub enum CompareError {
-    DifferentLength {
-        this: usize,
-        other: usize,
-    },
+    /// Списки не совпадают по количеству транзакций
+    DifferentLength { this: usize, other: usize },
+    /// Обнаружено различие в значении поля транзакции
     DifferentFieldValues {
         pos: usize,
         field: &'static str,
@@ -36,13 +38,20 @@ pub enum CompareError {
     },
 }
 
+/// Ошибка чтения\записи транзакций из\в файл
 #[derive(Debug)]
 pub enum LibError {
+    /// Пустой файл
     EmptyInput,
+    /// Контент файла не соответствует формату
     BadContent,
+    /// Ошибка парсинга формата файла
     BadFormat(ParseFormatTypeError),
+    /// Ошибка ввода вывода при чтении\записи файла
     Io(std::io::Error),
+    /// Ошибка парсинга суммы
     ParseAmount(std::num::ParseIntError),
+    /// Ошибка парсинга типа операции
     ParseOperationType(ParseOperationTypeError),
 }
 
@@ -75,7 +84,7 @@ impl std::fmt::Display for LibError {
         match self {
             LibError::EmptyInput => write!(f, "Не удалось прочитать файл - пустой"),
             LibError::BadContent => write!(f, "Содержимое файла не соответствует формату"),
-            LibError::BadFormat(e) => write!(f, "{e}"),
+            LibError::BadFormat(e) => write!(f, "Ошибка парсинга формата файла: {e}"),
             LibError::Io(e) => write!(f, "Ошибка ввода-вывода: {e}"),
             LibError::ParseAmount(e) => write!(f, "Ошибка парсинга суммы: {e}"),
             LibError::ParseOperationType(e) => write!(f, "Ошибка парсинга типа операции: {e}"),
